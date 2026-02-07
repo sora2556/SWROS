@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Machine Health Checker</title>
+
+<style>
+:root {
+  --bg-light: #f7f9fc;
+  --bg-dark: #0b1220;
+  --card-light: #ffffff;
+  --card-dark: #111a2e;
+  --text-light: #000;
+  --text-dark: #fff;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  transition: 0.3s;
+}
+
+body.light {
+  background: var(--bg-light);
+  color: var(--text-light);
+}
+
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+/* ===== HEADER ===== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+}
+
+button {
+  background: orange;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* ===== MACHINE CARDS ===== */
+.machine-section {
+  padding: 20px 40px;
+}
+
+.machine-card {
+  background: var(--card-light);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+body.dark .machine-card {
+  background: var(--card-dark);
+}
+
+.machine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.status {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.ok {
+  background: #2ecc71;
+  color: white;
+}
+
+.bad {
+  background: #ff4d4d;
+  color: white;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.stat {
+  opacity: 0.9;
+}
+</style>
+</head>
+
+<body class="light" id="body">
+
+<header>
+  <h1>Machine Health Checker</h1>
+  <button onclick="toggleTheme()">🌙 Toggle Theme</button>
+</header>
+
+<!-- ===== MACHINE SECTION (JINJA) ===== -->
+<section class="machine-section">
+  {% for m in machines %}
+  <div class="machine-card">
+
+    <div class="machine-header">
+      <h2>{{ m.name }}</h2>
+      <span class="status {{ 'bad' if m.faulty else 'ok' }}">
+        {{ 'Faulty' if m.faulty else 'Healthy' }}
+      </span>
+    </div>
+
+    <div class="stats">
+      <div class="stat">Total Input: <b>{{ m.total_input }} L</b></div>
+      <div class="stat">Total Output: <b>{{ m.total_output }} L</b></div>
+      <div class="stat">Total Waste: <b>{{ m.total_waste }} L</b></div>
+
+      <div class="stat">Waste Ratio: <b>{{ m.waste_ratio }}</b></div>
+      <div class="stat">Energy Used: <b>{{ m.energy_kwh }} kWh</b></div>
+      <div class="stat">Efficiency Score: <b>{{ m.efficiency }}</b></div>
+
+      <div class="stat">
+        Recommended Action:
+        <b>{{ m.action }}</b>
+      </div>
+    </div>
+
+  </div>
+  {% endfor %}
+</section>
+
+<script>
+function toggleTheme() {
+  const body = document.getElementById("body");
+  body.classList.toggle("dark");
+  body.classList.toggle("light");
+}
+</script>
+
+</body>
+</html>

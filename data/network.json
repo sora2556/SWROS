@@ -1,0 +1,81 @@
+{
+  "nodes": [
+    {
+      "id": "N1",
+      "position": {
+        "x": 180,
+        "y": 180
+      }
+    },
+    {
+      "id": "N2",
+      "position": {
+        "x": 360,
+        "y": 180
+      }
+    },
+    {
+      "id": "N3",
+      "position": {
+        "x": 540,
+        "y": 180
+      }
+    },
+    {
+      "id": "N4",
+      "position": {
+        "x": 360,
+        "y": 360
+      }
+    },
+    {
+      "id": "N5",
+      "position": {
+        "x": 180,
+        "y": 360
+      }
+    }
+  ],
+  "pipes": [
+    {
+      "from": "N1",
+      "to": "N2",
+      "flow": 1100,
+      "normal_pressure": 1,
+      "current_pressure": 1,
+      "leak": false
+    },
+    {
+      "from": "N2",
+      "to": "N3",
+      "flow": 950,
+      "normal_pressure": 1,
+      "current_pressure": 0.65,
+      "leak": true
+    },
+    {
+      "from": "N2",
+      "to": "N4",
+      "flow": 800,
+      "normal_pressure": 1,
+      "current_pressure": 1,
+      "leak": false
+    },
+    {
+      "from": "N4",
+      "to": "N5",
+      "flow": 600,
+      "normal_pressure": 1,
+      "current_pressure": 1,
+      "leak": false
+    },
+    {
+      "from": "N5",
+      "to": "N1",
+      "flow": 500,
+      "normal_pressure": 1,
+      "current_pressure": 1,
+      "leak": false
+    }
+  ]
+}

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Water Network Control Panel</title>
+  <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+
+  <style>
+    :root {
+      --bg-main: radial-gradient(circle at top, #14162a, #070812);
+      --bg-panel: rgba(255,255,255,0.10);
+      --bg-toolbar: rgba(0,0,0,0.85);
+      --bg-header: rgba(0,0,0,0.9);
+      --text: #eaeaff;
+      --accent: #6fa8ff;
+      --input-bg: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.15);
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg-main);
+      color: var(--text);
+      overflow: hidden;
+      padding-top: 56px;
+    }
+
+    #header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 50;
+    }
+
+    #header h1 {
+      margin: 0;
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    #app {
+      display: flex;
+      height: calc(100vh - 56px);
+    }
+
+    #toolbar {
+      width: 64px;
+      background: var(--bg-toolbar);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 12px;
+      border-right: 1px solid var(--border);
+    }
+
+    .tool {
+      margin: 12px 0;
+      cursor: pointer;
+      font-size: 22px;
+      opacity: 0.6;
+      user-select: none;
+    }
+
+    .tool.active {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    #cy {
+      flex: 1;
+      background-image:
+        radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    #panel {
+      width: 320px;
+      padding: 20px;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border);
+    }
+
+    label {
+      font-size: 0.8em;
+      color: var(--accent);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: white;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="header">
+  <h1>🚰 Smart Water Network – Leak Monitoring Dashboard</h1>
+</div>
+
+<div id="app">
+
+  <div id="toolbar">
+    <div class="tool active" id="select">🖐️</div>
+    <div class="tool" id="add">➕</div>
+    <div class="tool" id="connect">🔗</div>
+    <div class="tool" id="delete">❌</div>
+    <div class="tool" id="save">💾</div>
+    <div class="tool" id="load">📂</div>
+  </div>
+
+  <div id="cy"></div>
+
+  <div id="panel">
+    <label>Node ID</label>
+    <input id="nid" readonly>
+
+    <label>Flow (L/hr)</label>
+    <input id="flow" type="number">
+
+    <label>Current Pressure</label>
+    <input id="currentPressure" type="number" step="0.01">
+  </div>
+
+</div>
+
+<script>
+const selectBtn = document.getElementById("select");
+const addBtn = document.getElementById("add");
+const connectBtn = document.getElementById("connect");
+const deleteBtn = document.getElementById("delete");
+const saveBtn = document.getElementById("save");
+const loadBtn = document.getElementById("load");
+
+const nid = document.getElementById("nid");
+const flow = document.getElementById("flow");
+const currentPressure = document.getElementById("currentPressure");
+
+let mode = "select";
+let sourceNode = null;
+let currentNode = null;
+const GRID = 30;
+
+const cy = cytoscape({
+  container: document.getElementById("cy"),
+  layout: { name: "preset" },
+  style: [
+    { selector: "node", style: {
+      "background-color": "#4b6cff",
+      "label": "data(id)",
+      "width": 46,
+      "height": 46,
+      "color": "#fff",
+      "font-weight": "bold",
+      "text-valign": "center"
+    }},
+    { selector: "edge", style: {
+      "line-color": "#9aa0ff",
+      "width": 3,
+      "opacity": 0.7
+    }},
+    { selector: ".leak", style: {
+      "line-color": "red",
+      "line-style": "dashed",
+      "width": 7,
+      "opacity": 1
+    }}
+  ]
+});
+
+function snap(p) {
+  return {
+    x: Math.round(p.x / GRID) * GRID,
+    y: Math.round(p.y / GRID) * GRID
+  };
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll(".tool").forEach(t => t.classList.remove("active"));
+  document.getElementById(m).classList.add("active");
+  sourceNode = null;
+}
+
+selectBtn.onclick = () => setMode("select");
+addBtn.onclick = () => setMode("add");
+connectBtn.onclick = () => setMode("connect");
+deleteBtn.onclick = () => setMode("delete");
+
+function loadFromJSON() {
+  fetch("/network/load")
+    .then(r => r.json())
+    .then(data => {
+      cy.elements().remove();
+
+      data.nodes.forEach(n => {
+        cy.add({
+          group: "nodes",
+          data: { id: n.id, flow: 0, currentPressure: 1.0 },
+          position: n.position
+        });
+      });
+
+      data.pipes.forEach(p => {
+        const e = cy.add({
+          group: "edges",
+          data: {
+            id: `${p.from}_${p.to}`,
+            source: p.from,
+            target: p.to
+          }
+        });
+
+        const t = cy.getElementById(p.to);
+        t.data("flow", p.flow);
+        t.data("currentPressure", p.current_pressure);
+
+        if (p.leak) e.addClass("leak");
+      });
+    });
+}
+
+function saveToJSON() {
+  const payload = {
+    nodes: cy.nodes().map(n => ({
+      id: n.id(),
+      position: snap(n.position())
+    })),
+    pipes: cy.edges().map(e => {
+      const t = cy.getElementById(e.target().id());
+      return {
+        from: e.source().id(),
+        to: e.target().id(),
+        flow: Number(t.data("flow") || 0),
+        normal_pressure: 1.0,
+        current_pressure: Number(t.data("currentPressure") || 1.0)
+      };
+    })
+  };
+
+  fetch("/network/save", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).then(() => loadFromJSON());
+}
+
+saveBtn.onclick = saveToJSON;
+loadBtn.onclick = loadFromJSON;
+
+cy.on("tap", evt => {
+  if (evt.target === cy && mode === "add") {
+    const id = "N" + (cy.nodes().length + 1);
+    cy.add({
+      group: "nodes",
+      data: { id, flow: 0, currentPressure: 1.0 },
+      position: snap(evt.position)
+    });
+  }
+});
+
+cy.on("tap", "node", evt => {
+  currentNode = evt.target;
+  nid.value = currentNode.id();
+  flow.value = currentNode.data("flow") ?? "";
+  currentPressure.value = currentNode.data("currentPressure") ?? "";
+
+  if (mode === "connect") {
+    if (!sourceNode) sourceNode = currentNode;
+    else {
+      if (sourceNode.id() !== currentNode.id()) {
+        cy.add({
+          group: "edges",
+          data: {
+            id: `${sourceNode.id()}_${currentNode.id()}`,
+            source: sourceNode.id(),
+            target: currentNode.id()
+          }
+        });
+      }
+      sourceNode = null;
+    }
+  }
+
+  if (mode === "delete") {
+    currentNode.remove();
+    currentNode = null;
+  }
+});
+
+cy.on("dragfree", "node", e => {
+  if (mode === "select") e.target.position(snap(e.target.position()));
+});
+
+flow.oninput = e =>
+  currentNode && currentNode.data("flow", Number(e.target.value));
+
+currentPressure.oninput = e =>
+  currentNode && currentNode.data("currentPressure", Number(e.target.value));
+
+loadFromJSON();
+</script>
+
+</body>
+</html>

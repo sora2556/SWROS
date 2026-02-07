@@ -1,0 +1,11 @@
+batch_id,product,shift,machine,input_liters,output_liters,recorded_waste_liters,energy_kwh,production_time_min
+B026,Apple Juice,B,Filler-1,1040,970,20,132,58
+B027,Mango Juice,A,Filler-2,1110,1085,5,145,62
+B028,Orange Juice,C,Filler-1,1095,1005,35,150,67
+B029,Apple Juice,A,Filler-2,1015,990,6,119,52
+B030,Mango Juice,B,Filler-1,1130,1020,40,160,70
+B031,Orange Juice,C,Filler-2,1070,1045,7,138,60
+B032,Apple Juice,B,Filler-1,1025,945,28,142,63
+B033,Mango Juice,A,Filler-2,1150,1120,6,155,66
+B034,Orange Juice,B,Filler-1,1085,980,38,148,69
+B035,Apple Juice,C,Filler-2,1035,1005,5,125,55

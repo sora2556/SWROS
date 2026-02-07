@@ -1,0 +1,60 @@
+{
+  "machines": {
+    "Filler-1": {
+      "product": "Juice",
+      "batches": [
+        {
+          "batch_id": "B001",
+          "shift": "A",
+          "input_liters": 1050,
+          "output_liters": 980,
+          "waste_liters": 20,
+          "energy_kwh": 120,
+          "production_time_min": 55
+        },
+        {
+          "batch_id": "B002",
+          "shift": "B",
+          "input_liters": 1100,
+          "output_liters": 1000,
+          "waste_liters": 30,
+          "energy_kwh": 135,
+          "production_time_min": 60
+        },
+        {
+          "batch_id": "B005",
+          "shift": "B",
+          "input_liters": 1020,
+          "output_liters": 900,
+          "waste_liters": 40,
+          "energy_kwh": 150,
+          "production_time_min": 70
+        }
+      ]
+    },
+
+    "Filler-2": {
+      "product": "Juice",
+      "batches": [
+        {
+          "batch_id": "B003",
+          "shift": "C",
+          "input_liters": 1080,
+          "output_liters": 720,
+          "waste_liters": 360,
+          "energy_kwh": 240,
+          "production_time_min": 95
+        },
+        {
+          "batch_id": "B004",
+          "shift": "A",
+          "input_liters": 1000,
+          "output_liters": 650,
+          "waste_liters": 350,
+          "energy_kwh": 270,
+          "production_time_min": 105
+        }
+      ]
+    }
+  }
+}
