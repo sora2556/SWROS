@@ -1,321 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Water Network Control Panel</title>
-  <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+    <meta charset="UTF-8" />
+    <title>Smart Water Network Control</title>
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+    <style>
+        :root {
+            --bg-main: radial-gradient(circle at top, #14162a, #070812);
+            --bg-panel: rgba(255,255,255,0.05);
+            --bg-toolbar: rgba(0,0,0,0.85);
+            --text: #eaeaff;
+            --accent: #6fa8ff;
+            --danger: #ff4d4d;
+            --success: #2ecc71;
+            --border: rgba(255,255,255,0.15);
+        }
 
-  <style>
-    :root {
-      --bg-main: radial-gradient(circle at top, #14162a, #070812);
-      --bg-panel: rgba(255,255,255,0.10);
-      --bg-toolbar: rgba(0,0,0,0.85);
-      --bg-header: rgba(0,0,0,0.9);
-      --text: #eaeaff;
-      --accent: #6fa8ff;
-      --input-bg: rgba(255,255,255,0.08);
-      --border: rgba(255,255,255,0.15);
-    }
+        body { margin: 0; height: 100vh; font-family: "Segoe UI", sans-serif; background: var(--bg-main); color: var(--text); overflow: hidden; }
+        #header { height: 56px; background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; z-index: 100; position: relative; }
+        #app { display: flex; height: calc(100vh - 56px); }
+        
+        #toolbar { width: 64px; background: var(--bg-toolbar); display: flex; flex-direction: column; align-items: center; padding-top: 12px; border-right: 1px solid var(--border); }
+        .tool { margin: 12px 0; cursor: pointer; font-size: 22px; opacity: 0.5; transition: 0.2s; user-select: none; }
+        .tool:hover { opacity: 0.8; }
+        .tool.active { opacity: 1; color: var(--accent); transform: scale(1.1); }
 
-    body {
-      margin: 0;
-      height: 100vh;
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: var(--bg-main);
-      color: var(--text);
-      overflow: hidden;
-      padding-top: 56px;
-    }
+        #cy { flex: 1; background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 30px 30px; }
+        
+        #panel { width: 300px; padding: 20px; background: var(--bg-panel); border-left: 1px solid var(--border); backdrop-filter: blur(10px); }
+        label { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: block; margin-top: 15px; }
+        input { width: 100%; padding: 10px; margin: 8px 0; background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: white; border-radius: 4px; box-sizing: border-box; }
+        input[readonly] { opacity: 0.6; cursor: not-allowed; }
 
-    #header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 56px;
-      background: var(--bg-header);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      z-index: 50;
-    }
+        .fix-btn { width: 100%; padding: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: none; margin-top: 20px; transition: background 0.2s; }
+        .fix-btn:hover { background: #27ae60; }
 
-    #header h1 {
-      margin: 0;
-      font-size: 1.1em;
-      font-weight: 600;
-      color: var(--accent);
-    }
-
-    #app {
-      display: flex;
-      height: calc(100vh - 56px);
-    }
-
-    #toolbar {
-      width: 64px;
-      background: var(--bg-toolbar);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 12px;
-      border-right: 1px solid var(--border);
-    }
-
-    .tool {
-      margin: 12px 0;
-      cursor: pointer;
-      font-size: 22px;
-      opacity: 0.6;
-      user-select: none;
-    }
-
-    .tool.active {
-      opacity: 1;
-      color: var(--accent);
-    }
-
-    #cy {
-      flex: 1;
-      background-image:
-        radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
-      background-size: 30px 30px;
-    }
-
-    #panel {
-      width: 320px;
-      padding: 20px;
-      background: var(--bg-panel);
-      border-left: 1px solid var(--border);
-    }
-
-    label {
-      font-size: 0.8em;
-      color: var(--accent);
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      margin-bottom: 12px;
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      color: white;
-      border-radius: 6px;
-    }
-  </style>
+        #alert-toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--danger); color: white; padding: 12px 25px; border-radius: 50px;
+            display: none; align-items: center; gap: 20px; box-shadow: 0 10px 30px rgba(255, 77, 77, 0.4); z-index: 1000;
+        }
+        #alert-toast button { background: white; color: var(--danger); border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
-
 <body>
 
-<div id="header">
-  <h1>🚰 Smart Water Network – Leak Monitoring Dashboard</h1>
-</div>
+<div id="header"><h3>🚰 Smart Water Network Dashboard</h3></div>
 
 <div id="app">
+    <div id="toolbar">
+        <div class="tool active" id="select" title="Select">🖐️</div>
+        <div class="tool" id="add" title="Add Node">➕</div>
+        <div class="tool" id="connect" title="Connect Pipes">🔗</div>
+        <div class="tool" id="delete" title="Delete">❌</div>
+        <div class="tool" id="save" title="Save Network">💾</div>
+        <div class="tool" id="load" title="Reload from File">📂</div> </div>
 
-  <div id="toolbar">
-    <div class="tool active" id="select">🖐️</div>
-    <div class="tool" id="add">➕</div>
-    <div class="tool" id="connect">🔗</div>
-    <div class="tool" id="delete">❌</div>
-    <div class="tool" id="save">💾</div>
-    <div class="tool" id="load">📂</div>
-  </div>
+    <div id="cy"></div>
 
-  <div id="cy"></div>
+    <div id="panel">
+        <label>Selected Node</label>
+        <input id="nid" readonly placeholder="Click a node...">
+        
+        <label>Flow Rate (L/hr)</label>
+        <input id="flow" type="number">
+        
+        <label>Pressure (Bar)</label>
+        <input id="currentPressure" type="number" step="0.01">
 
-  <div id="panel">
-    <label>Node ID</label>
-    <input id="nid" readonly>
+        <button id="fixNodeBtn" class="fix-btn" onclick="fixSpecificNode()">Fix This Leak</button>
+    </div>
+</div>
 
-    <label>Flow (L/hr)</label>
-    <input id="flow" type="number">
-
-    <label>Current Pressure</label>
-    <input id="currentPressure" type="number" step="0.01">
-  </div>
-
+<div id="alert-toast">
+    <span>⚠️ <strong>Leak Detected!</strong> Pressure drop in network.</span>
+    <button onclick="fixAllLeaks()">FIX ALL</button>
 </div>
 
 <script>
-const selectBtn = document.getElementById("select");
-const addBtn = document.getElementById("add");
-const connectBtn = document.getElementById("connect");
-const deleteBtn = document.getElementById("delete");
-const saveBtn = document.getElementById("save");
-const loadBtn = document.getElementById("load");
+    let mode = "select";
+    let currentNode = null;
+    let sourceNode = null;
+    const GRID = 30;
 
-const nid = document.getElementById("nid");
-const flow = document.getElementById("flow");
-const currentPressure = document.getElementById("currentPressure");
-
-let mode = "select";
-let sourceNode = null;
-let currentNode = null;
-const GRID = 30;
-
-const cy = cytoscape({
-  container: document.getElementById("cy"),
-  layout: { name: "preset" },
-  style: [
-    { selector: "node", style: {
-      "background-color": "#4b6cff",
-      "label": "data(id)",
-      "width": 46,
-      "height": 46,
-      "color": "#fff",
-      "font-weight": "bold",
-      "text-valign": "center"
-    }},
-    { selector: "edge", style: {
-      "line-color": "#9aa0ff",
-      "width": 3,
-      "opacity": 0.7
-    }},
-    { selector: ".leak", style: {
-      "line-color": "red",
-      "line-style": "dashed",
-      "width": 7,
-      "opacity": 1
-    }}
-  ]
-});
-
-function snap(p) {
-  return {
-    x: Math.round(p.x / GRID) * GRID,
-    y: Math.round(p.y / GRID) * GRID
-  };
-}
-
-function setMode(m) {
-  mode = m;
-  document.querySelectorAll(".tool").forEach(t => t.classList.remove("active"));
-  document.getElementById(m).classList.add("active");
-  sourceNode = null;
-}
-
-selectBtn.onclick = () => setMode("select");
-addBtn.onclick = () => setMode("add");
-connectBtn.onclick = () => setMode("connect");
-deleteBtn.onclick = () => setMode("delete");
-
-function loadFromJSON() {
-  fetch("/network/load")
-    .then(r => r.json())
-    .then(data => {
-      cy.elements().remove();
-
-      data.nodes.forEach(n => {
-        cy.add({
-          group: "nodes",
-          data: { id: n.id, flow: 0, currentPressure: 1.0 },
-          position: n.position
-        });
-      });
-
-      data.pipes.forEach(p => {
-        const e = cy.add({
-          group: "edges",
-          data: {
-            id: `${p.from}_${p.to}`,
-            source: p.from,
-            target: p.to
-          }
-        });
-
-        const t = cy.getElementById(p.to);
-        t.data("flow", p.flow);
-        t.data("currentPressure", p.current_pressure);
-
-        if (p.leak) e.addClass("leak");
-      });
+    const cy = cytoscape({
+        container: document.getElementById("cy"),
+        style: [
+            { selector: "node", style: { "background-color": "#4b6cff", "label": "data(id)", "color": "#fff", "text-valign": "center", "width": 40, "height": 40, "font-size": "12px" }},
+            { selector: "edge", style: { "line-color": "#9aa0ff", "width": 3, "curve-style": "bezier", "target-arrow-shape": "triangle", "target-arrow-color": "#9aa0ff", "opacity": 0.8 }},
+            { selector: ".leak", style: { "line-color": "#ff4d4d", "target-arrow-color": "#ff4d4d", "width": 6, "line-style": "dashed" }}
+        ]
     });
-}
 
-function saveToJSON() {
-  const payload = {
-    nodes: cy.nodes().map(n => ({
-      id: n.id(),
-      position: snap(n.position())
-    })),
-    pipes: cy.edges().map(e => {
-      const t = cy.getElementById(e.target().id());
-      return {
-        from: e.source().id(),
-        to: e.target().id(),
-        flow: Number(t.data("flow") || 0),
-        normal_pressure: 1.0,
-        current_pressure: Number(t.data("currentPressure") || 1.0)
-      };
-    })
-  };
-
-  fetch("/network/save", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  }).then(() => loadFromJSON());
-}
-
-saveBtn.onclick = saveToJSON;
-loadBtn.onclick = loadFromJSON;
-
-cy.on("tap", evt => {
-  if (evt.target === cy && mode === "add") {
-    const id = "N" + (cy.nodes().length + 1);
-    cy.add({
-      group: "nodes",
-      data: { id, flow: 0, currentPressure: 1.0 },
-      position: snap(evt.position)
+    // Handle Toolbar Selection
+    document.querySelectorAll(".tool").forEach(btn => {
+        btn.onclick = () => {
+            if (btn.id === "save" || btn.id === "load") return; // Buttons, not modes
+            mode = btn.id;
+            document.querySelectorAll(".tool").forEach(t => t.classList.remove("active"));
+            btn.classList.add("active");
+            sourceNode = null;
+        };
     });
-  }
-});
 
-cy.on("tap", "node", evt => {
-  currentNode = evt.target;
-  nid.value = currentNode.id();
-  flow.value = currentNode.data("flow") ?? "";
-  currentPressure.value = currentNode.data("currentPressure") ?? "";
+    function loadNetwork() {
+        fetch("/network/load")
+            .then(r => r.json())
+            .then(data => {
+                cy.elements().remove();
+                let hasLeak = false;
 
-  if (mode === "connect") {
-    if (!sourceNode) sourceNode = currentNode;
-    else {
-      if (sourceNode.id() !== currentNode.id()) {
-        cy.add({
-          group: "edges",
-          data: {
-            id: `${sourceNode.id()}_${currentNode.id()}`,
-            source: sourceNode.id(),
-            target: currentNode.id()
-          }
-        });
-      }
-      sourceNode = null;
+                // Add Nodes
+                data.nodes.forEach(n => cy.add({ group: "nodes", data: n, position: n.position }));
+                
+                // Add Pipes & Map Data
+                data.pipes.forEach(p => {
+                    const edge = cy.add({ 
+                        group: "edges", 
+                        data: { id: p.from + '_' + p.to, source: p.from, target: p.to } 
+                    });
+                    
+                    const targetNode = cy.getElementById(p.to);
+                    targetNode.data('flow', p.flow);
+                    targetNode.data('currentPressure', p.current_pressure);
+                    
+                    if (p.leak) {
+                        edge.addClass('leak');
+                        hasLeak = true;
+                    }
+                });
+
+                document.getElementById('alert-toast').style.display = hasLeak ? 'flex' : 'none';
+            })
+            .catch(err => console.error("Error loading network:", err));
     }
-  }
 
-  if (mode === "delete") {
-    currentNode.remove();
-    currentNode = null;
-  }
-});
+    function saveNetwork() {
+        const payload = {
+            nodes: cy.nodes().map(n => ({ id: n.id(), position: n.position() })),
+            pipes: cy.edges().map(e => {
+                const target = e.target();
+                return {
+                    from: e.source().id(),
+                    to: target.id(),
+                    flow: Number(target.data('flow') || 0),
+                    current_pressure: Number(target.data('currentPressure') || 1.0),
+                    normal_pressure: 1.0
+                };
+            })
+        };
 
-cy.on("dragfree", "node", e => {
-  if (mode === "select") e.target.position(snap(e.target.position()));
-});
+        fetch("/network/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        }).then(() => loadNetwork());
+    }
 
-flow.oninput = e =>
-  currentNode && currentNode.data("flow", Number(e.target.value));
+    // Node Interactions
+    cy.on("tap", "node", e => {
+        currentNode = e.target;
+        const pVal = currentNode.data("currentPressure") || 1.0;
+        
+        document.getElementById("nid").value = currentNode.id();
+        document.getElementById("flow").value = currentNode.data("flow") || 0;
+        document.getElementById("currentPressure").value = pVal;
 
-currentPressure.oninput = e =>
-  currentNode && currentNode.data("currentPressure", Number(e.target.value));
+        // Show individual fix button if this node is part of a leak
+        document.getElementById("fixNodeBtn").style.display = (pVal < 0.7) ? "block" : "none";
 
-loadFromJSON();
+        if (mode === "connect") {
+            if (!sourceNode) {
+                sourceNode = currentNode;
+                currentNode.style('background-color', '#6fa8ff');
+            } else {
+                if (sourceNode.id() !== currentNode.id()) {
+                    cy.add({ group: "edges", data: { source: sourceNode.id(), target: currentNode.id() }});
+                    saveNetwork(); // Auto-save on connect
+                }
+                sourceNode.style('background-color', '#4b6cff');
+                sourceNode = null;
+            }
+        }
+        if (mode === "delete") {
+            currentNode.remove();
+            saveNetwork();
+        }
+    });
+
+    cy.on("tap", evt => {
+        if (evt.target === cy && mode === "add") {
+            const id = "N" + (cy.nodes().length + 1);
+            cy.add({ 
+                group: "nodes", 
+                data: { id: id, currentPressure: 1.0, flow: 0 }, 
+                position: { 
+                    x: Math.round(evt.position.x / GRID) * GRID, 
+                    y: Math.round(evt.position.y / GRID) * GRID 
+                }
+            });
+        }
+    });
+
+    // Update data when typing
+    document.getElementById("flow").oninput = e => currentNode?.data("flow", e.target.value);
+    document.getElementById("currentPressure").oninput = e => {
+        const val = parseFloat(e.target.value);
+        currentNode?.data("currentPressure", val);
+        document.getElementById("fixNodeBtn").style.display = (val < 0.7) ? "block" : "none";
+    };
+
+    // Fix Functions
+    function fixSpecificNode() {
+        if (!currentNode) return;
+        currentNode.data("currentPressure", 1.0);
+        saveNetwork();
+    }
+
+    function fixAllLeaks() {
+        cy.nodes().forEach(n => n.data("currentPressure", 1.0));
+        saveNetwork();
+    }
+
+    // Button Mapping
+    document.getElementById("save").onclick = saveNetwork;
+    document.getElementById("load").onclick = loadNetwork;
+
+    // Initial Load
+    loadNetwork();
 </script>
-
 </body>
 </html>

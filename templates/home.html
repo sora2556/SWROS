@@ -1,40 +1,192 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Industrial Intelligence Dashboard</title>
-<style>
-body {
-  font-family: Inter, sans-serif;
-  background: #0b1220;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-.menu {
-  display: grid;
-  gap: 20px;
-}
-a {
-  padding: 20px 40px;
-  background: #111a2e;
-  border-radius: 16px;
-  text-decoration: none;
-  color: white;
-  font-size: 18px;
-  text-align: center;
-}
-a:hover { background: #1e293b; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SWROS – Smart Waste & Resource Optimization System</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      display: flex;
+      background: linear-gradient(135deg, #0f172a, #020617);
+      color: #0f172a;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      width: 95%;
+      height: 90vh;
+      margin: auto;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+      background: white;
+    }
+
+    /* LEFT PANEL */
+    .left {
+      background: linear-gradient(135deg, #22c55e, #3b82f6),
+        url('https://images.unsplash.com/photo-1581093458791-9d42c0b16b4d?auto=format&fit=crop&w=1200&q=80');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: white;
+      text-align: center;
+    }
+
+    .left h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 48px;
+      line-height: 1.2;
+      letter-spacing: 1px;
+    }
+
+    .left span {
+      display: block;
+      font-size: 18px;
+      font-weight: 300;
+      margin-top: 12px;
+      opacity: 0.9;
+    }
+
+    /* RIGHT PANEL */
+    .right {
+      background: #f8fafc;
+      padding: 60px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: #064e3b;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #475569;
+      margin-bottom: 40px;
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 500px;
+    }
+
+    .menu {
+      display: grid;
+      gap: 20px;
+    }
+
+    .menu a {
+      text-decoration: none;
+      background: white;
+      padding: 20px 24px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      transition: all 0.25s ease;
+      border: 1px solid #e2e8f0;
+    }
+
+    .menu a:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      border-color: #10b981;
+      color: #065f46;
+    }
+
+    .arrow {
+      font-size: 20px;
+      opacity: 0.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .left {
+        min-height: 220px;
+      }
+
+      .left h1 {
+        font-size: 32px;
+      }
+
+      .right {
+        padding: 40px 25px;
+      }
+    }
+  </style>
 </head>
+
 <body>
+  
 
-<div class="menu">
-  <a href="/waste">📉 Invisible Waste Analysis</a>
-  <a href="/machines">🛠 Machine Health Checker</a>
-  <a href="/network">🚰 Water Network & Leak Detection</a>
-</div>
+  <div class="container">
 
+    <!-- LEFT VISUAL PANEL -->
+    <div class="left">
+      <div>
+        <h1>SWROS</h1>
+        <span>Smart Waste & Resource Optimization System</span>
+      </div>
+    </div>
+
+    <!-- RIGHT CONTENT PANEL -->
+    <div class="right">
+      <div class="title">Industrial Intelligence Dashboard</div>
+      <div class="subtitle">
+        Monitor invisible waste, analyze machine health, and detect water leaks using intelligent
+        data‑driven insights. Choose a module below to begin optimizing industrial resources.
+      </div>
+
+      <div class="menu">
+        <a href="/waste">Invisible Waste Analysis <span class="arrow">→</span></a>
+        <a href="/machines">Machine Health Checker <span class="arrow">→</span></a>
+        <a href="/network">Water Network & Leak Detection <span class="arrow">→</span></a>
+      </div>
+    </div>
+
+  </div>
+
+  <style>
+    .logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+    }
+
+    .logo img {
+      height: 60px;
+      width: auto;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+    }
+  </style>
 </body>
 </html>
