@@ -53,7 +53,7 @@ The system is intentionally software-driven and does not rely on hardware or IoT
 ---
 
 ## Project Structure
-
+---
 SWROS/
 ├── app.py
 ├── data/
@@ -66,7 +66,7 @@ SWROS/
 │   ├── machine_health.html
 │   └── water_network.html
 └── README.md
-
+---
 ---
 
 ## Running the Project Locally
