@@ -1,6 +1,6 @@
 # SWROS – Smart Waste & Resource Optimization System
 
-## 🚀 About
+## About
 SWROS is a full-stack web application built during a 30-hour hackathon focused on Smart Tech for Industry 5.0.
 
 The project explores how software can help industries detect, visualize, and understand hidden inefficiencies—such as water leaks, declining machine performance, and invisible waste—before they turn into major losses.
@@ -9,9 +9,9 @@ This is a working prototype designed to demonstrate ideas, logic, and system thi
 
 ---
 
-## 🧠 What the System Does
+## What the System Does
 
-### 💧 Smart Water Leakage Detection
+### Smart Water Leakage Detection
 - Interactive pipe network builder
 - Add, connect, and delete nodes visually
 - Monitor pressure values at each node
@@ -22,7 +22,7 @@ This is a working prototype designed to demonstrate ideas, logic, and system thi
 
 ---
 
-### ⚙️ Machine Health Monitoring
+### Machine Health Monitoring
 - Analyze machine performance using batch-level data
 - Compare input, output, waste, and energy consumption
 - Calculate efficiency scores and waste ratios
@@ -31,7 +31,7 @@ This is a working prototype designed to demonstrate ideas, logic, and system thi
 
 ---
 
-### 🗑️ Invisible Waste Tracking
+### Invisible Waste Tracking
 - Calculate invisible waste using:
   input − output − recorded waste
 - Identify high-loss batches
@@ -41,7 +41,7 @@ This is a working prototype designed to demonstrate ideas, logic, and system thi
 
 ---
 
-## 🏗️ How It’s Built
+## How It’s Built
 - Backend: Python, Flask, Pandas
 - Frontend: HTML, CSS, JavaScript
 - Charts: Chart.js
@@ -52,7 +52,7 @@ The system is intentionally software-driven and does not rely on hardware or IoT
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 SWROS/
 ├── app.py
@@ -69,7 +69,7 @@ SWROS/
 
 ---
 
-## ▶️ Running the Project Locally
+## Running the Project Locally
 
 pip install flask pandas
 python app.py
@@ -79,16 +79,16 @@ http://127.0.0.1:5000
 
 ---
 
-## 👥 Team
-Built during a hackathon by Team Byte404:
+## Team
+Built during the hackathon by Team Byte404:
 - Sooraj Kumar S
-- Lizona
-- Ryan
-- Devananda
+- Lizona Loy Parayil
+- Ryan Sebastian
+- Devananda A
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 - Code refactoring and modularization
 - Alerts and notification system
 - Integration with real sensor data
@@ -97,5 +97,5 @@ Built during a hackathon by Team Byte404:
 
 ---
 
-## ℹ️ Notes
+## Notes
 This project was built under strict time constraints during a hackathon and is intended for educational and demonstration purposes.
